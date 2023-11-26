@@ -1,0 +1,157 @@
+﻿<Window x:Class="FGU_Manager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FGU_Manager"
+        mc:Ignorable="d"
+        Title="FGU Manager" Height="450" Width="800">
+
+    <!-- Window Resources for styles -->
+    <Window.Resources>
+        <!-- Button Style -->
+        <Style x:Key="AccentButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#FF007ACC"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF00569E"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="10"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF00569E"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- TextBox Style -->
+        <Style x:Key="TextBoxBaseStyle" TargetType="TextBox">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#FFABADB3"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="AcceptsTab" Value="True"/>
+        </Style>
+    </Window.Resources>
+
+    <!-- Main grid that contains everything -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- For the new grid's height -->
+            <RowDefinition Height="*"/>
+            <!-- For the tab control to take the remaining space -->
+        </Grid.RowDefinitions>
+
+        <!-- Top Grid -->
+        <Grid Margin="5" Grid.Row="0">
+            <Button Name="SelectFileButton" Click="SelectFileButton_Click" Content="XML..."
+                HorizontalAlignment="Left" VerticalAlignment="Center"
+				Margin="5,5,5,5" Height="40" Width="75" Style="{StaticResource AccentButtonStyle}"/>
+
+            <Label Name="txtSelectedFilePath" Content="Selected File Path"
+               HorizontalAlignment="Left" VerticalAlignment="Center"
+			   Margin="85,0,0,0" Height="40" Width="500" Background="Gray"/>
+
+            <Button Name="TestButton" Click="TestButton_Click" Content="TEST"
+                HorizontalAlignment="Right" VerticalAlignment="Center"
+				Margin="5,5,5,5" Height="40" Width="75" Style="{StaticResource AccentButtonStyle}"/>
+        </Grid>
+
+        <!-- Tab Control -->
+        <TabControl Margin="5" Grid.Row="1">
+            <!-- Item Tab -->
+            <TabItem x:Name="TabItems" Header="Items">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Name="SelectImageButton" Click="SelectImageButton_Click" Content="Image"
+					HorizontalAlignment="Left" VerticalAlignment="Top"
+					Margin="5,205,0,0" Width="70" Height="40" Style="{StaticResource AccentButtonStyle}"
+					Grid.RowSpan="2"/>
+
+                    <TextBox Name="PasteBox" AcceptsReturn="True" AcceptsTab="True" 
+					VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+					Margin="205,0,24,10" Padding="10" 
+					Style="{StaticResource TextBoxBaseStyle}" Background="#FFDADADA" Grid.RowSpan="2" />
+
+                    <Button Name="InjectButton" Click="InjectButton_Click" Content="Inject" 
+                    Grid.Row="1" 
+					HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="5,35,601,20" Padding="10" Width="70" Height="40"  
+                    Style="{StaticResource AccentButtonStyle}"/>
+
+                    <Border Background="Gray" Width="200" Height="200" Margin="0,0,574,20">
+                        <Image x:Name="DisplayImage" Stretch="Fill"/>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Creature Tab -->
+            <TabItem x:Name="TabCreatures" Header="Creatures">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Button Name="npcSelectImageButton" Content="Image" Click="NpcSelectImageButton_Click"
+                        HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Margin="5,205,0,0" Width="70" Height="40" Style="{StaticResource AccentButtonStyle}"
+                        Grid.RowSpan="2"/>
+
+                    <Button Name="npcSelectTokenButton" Click="NpcSelectTokenButton_Click" Content="Token"
+                    Grid.RowSpan="2"
+					HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="680,120,0,0" Padding="10" Width="70" Height="40"
+					Style="{StaticResource AccentButtonStyle}"/>
+
+                    <TextBox Name="npcPasteBox" AcceptsReturn="True" AcceptsTab="True" VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Auto" Margin="205,0,115,10" Padding="10"
+                        Style="{StaticResource TextBoxBaseStyle}" Background="#FFDADADA" Grid.RowSpan="2" />
+
+                    <Button Name="npcInjectButton" Click="NpcInjectButton_Click" Content="Inject"
+                        Grid.Row="1" 
+                        HorizontalAlignment="Left" VerticalAlignment="Top"
+                        Margin="5,35,601,20" Padding="10" Width="70" Height="40"  
+                        Style="{StaticResource AccentButtonStyle}"/>
+
+                    <Border Background="Gray" Width="200" Height="200" Margin="0,0,574,20">
+                        <Image x:Name="npcDisplayImage" Stretch="Fill"/>
+                    </Border>
+
+                    <Border Background="Gray" Width="100" Height="100" Margin="654,-100,0,0">
+                        <Image x:Name="npcDisplayToken" Stretch="Fill"/>
+                    </Border>
+
+                </Grid>
+
+            </TabItem>
+
+            <!-- Inventory Tab -->
+            <TabItem x:Name="TabInventory" Header="Inventory">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                </Grid>
+
+            </TabItem>
+
+            <!-- Future tabs can be added here -->
+        </TabControl>
+    </Grid>
+
+</Window>
