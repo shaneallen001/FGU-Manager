@@ -98,7 +98,7 @@
             </TabItem>
 
             <!-- Creature Tab -->
-            <TabItem x:Name="TabCreatures" Header="Creatures">
+            <TabItem x:Name="TabCreatures" Header="NPCs">
                 <Grid Margin="10">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -140,12 +140,16 @@
 
             <!-- Inventory Tab -->
             <TabItem x:Name="TabInventory" Header="Inventory">
-                <Grid Margin="10">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-
+                <Grid>
+                    <DataGrid x:Name="MagicItemsDataGrid" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                            <DataGridTextColumn Header="Rarity" Binding="{Binding Rarity}" />
+                            <DataGridTextColumn Header="Attuned" Binding="{Binding IsAttuned}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <!-- Additional Controls Here -->
                 </Grid>
 
             </TabItem>

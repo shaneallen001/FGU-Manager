@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Xml;
+using System.Xml.Linq;
 
 namespace FGU_Manager
 {
@@ -31,6 +32,7 @@ namespace FGU_Manager
         private string selectedImagePath;
         private string npcselectedImagePath;
         private string npcselectedTokenPath;
+        public List<Player> Players { get; set; }
 
         //////////////////////////
         // Main Window
@@ -45,7 +47,8 @@ namespace FGU_Manager
         /////////////////////////
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
-
+            LoadData();
+            DisplayData();
         }
 
         //////////////////////////
@@ -359,6 +362,110 @@ namespace FGU_Manager
             return -1;
         }
 
+        private void LoadData()
+        {
+            XDocument doc = XDocument.Load(selectedFilePath);
+            Players = new List<Player>();
+
+            // Load individual characters' items
+            var charSheets = doc.Descendants("charsheet");
+            foreach (var charSheet in charSheets)
+            {
+                foreach (var charElem in charSheet.Elements())
+                {
+                    Player player = new Player();
+
+                    var nameElement = charElem.Element("name");
+                    if (nameElement != null && nameElement.Attribute("type")?.Value == "string")
+                    {
+                        player.Name = nameElement.Value;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+
+                    player.MagicItems = LoadMagicItems(charElem);
+                    Players.Add(player);
+                }
+            }
+
+            // Load party shared items
+            var partySheet = doc.Descendants("partysheet").FirstOrDefault();
+            if (partySheet != null)
+            {
+                Player partyPlayer = new Player { Name = "Party Sheet" };
+                partyPlayer.MagicItems = LoadPartyMagicItems(partySheet);
+                Players.Add(partyPlayer);
+            }
+        }
+
+        private List<MagicItem> LoadPartyMagicItems(XElement parentElement)
+        {
+            List<MagicItem> magicItems = new List<MagicItem>();
+
+            var inventoryItems = parentElement.Descendants("treasureparcelitemlist").Elements();
+            foreach (var item in inventoryItems)
+            {
+                var propertiesElement = item.Element("properties");
+                if (propertiesElement != null && propertiesElement.Value.Contains("Magic"))
+                {
+                    MagicItem magicItem = new MagicItem
+                    {
+                        CharacterName = parentElement.Element("name")?.Value,
+                        Name = item.Element("name")?.Value,
+                        Rarity = item.Element("rarity")?.Value,
+                        IsAttuned = item.Element("attune")?.Value == "1"
+                        // Other properties as needed
+                    };
+                    magicItems.Add(magicItem);
+                }
+            }
+
+            return magicItems;
+        }
+
+        private List<MagicItem> LoadMagicItems(XElement parentElement)
+        {
+            List<MagicItem> magicItems = new List<MagicItem>();
+
+            var inventoryItems = parentElement.Descendants("inventorylist").Elements();
+            foreach (var item in inventoryItems)
+            {
+                var propertiesElement = item.Element("properties");
+                if (propertiesElement != null && propertiesElement.Value.Contains("Magic"))
+                {
+                    MagicItem magicItem = new MagicItem
+                    {
+                        CharacterName = parentElement.Element("name")?.Value,
+                        Name = item.Element("name")?.Value,
+                        Rarity = item.Element("rarity")?.Value,
+                        IsAttuned = item.Element("attune")?.Value == "1"
+                        // Other properties as needed
+                    };
+                    magicItems.Add(magicItem);
+                }
+            }
+
+            return magicItems;
+        }
+
+        private void DisplayData()
+        {
+            // Flatten the list of magic items from all players
+            var allMagicItems = Players.SelectMany(player =>
+                player.MagicItems.Select(item =>
+                    new MagicItem
+                    {
+                        CharacterName = player.Name,
+                        Name = item.Name,
+                        Rarity = item.Rarity,
+                        IsAttuned = item.IsAttuned
+                    })).ToList();
+
+            // Set the DataGrid's ItemsSource to the flattened list
+            MagicItemsDataGrid.ItemsSource = allMagicItems;
+        }
 
     }
 }
