@@ -19,9 +19,6 @@ using System.Xml.Linq;
 
 namespace FGU_Manager
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
 
@@ -48,7 +45,8 @@ namespace FGU_Manager
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
             LoadData();
-            DisplayData();
+            DisplayData(CommonItemsDataGrid, "Common");
+            DisplayData(RareItemsDataGrid, "Rare");
         }
 
         //////////////////////////
@@ -96,14 +94,12 @@ namespace FGU_Manager
             }
 
             string xmlContentToInject = PasteBox.Text;
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(selectedFilePath);
+            XDocument xmlDoc = XDocument.Load(selectedFilePath);
 
             try
             {
-                // Common logic for finding the next available ID for both item and image
-                int maxId = FindMaxId(xmlDoc, "/root/item");
-                int maxImageId = FindMaxId(xmlDoc, "/root/image");
+                int maxId = FindMaxId(xmlDoc, "item");
+                int maxImageId = FindMaxId(xmlDoc, "image");
                 if (maxId == -1 || maxImageId == -1)
                 {
                     MessageBox.Show("Error: Could not find the <item> or <image> node in the XML file.");
@@ -113,10 +109,8 @@ namespace FGU_Manager
                 int newId = maxId + 1;
                 string newIdString = "id-" + newId.ToString("D5");
 
-                // Handling the item XML
-                XmlElement newItem = xmlDoc.CreateElement(newIdString);
-                XmlDocumentFragment fragment = xmlDoc.CreateDocumentFragment();
-                fragment.InnerXml = xmlContentToInject;
+                XElement newItem = new XElement(newIdString);
+                newItem.Add(XElement.Parse(xmlContentToInject));
 
                 // Injecting the <linklist> if an image is selected
                 if (!string.IsNullOrEmpty(selectedImagePath))
@@ -128,43 +122,47 @@ namespace FGU_Manager
 
                     // Create the dynamic <linklist> content
                     string linkListContent = $@"
-                <linklist>
+                    <linklist>
                     <link class='imagewindow' recordname='image.{newImageIdString}'>Image: {imageName}</link>
-                </linklist>";
+                    </linklist>";
 
                     // Insert the <linklist> into the <description> of the item
-                    XmlNode descriptionNode = fragment.SelectSingleNode(".//description");
+                    var descriptionNode = xmlDoc.Descendants("description").FirstOrDefault();
                     if (descriptionNode != null)
                     {
-                        XmlDocumentFragment linkListFragment = xmlDoc.CreateDocumentFragment();
-                        linkListFragment.InnerXml = linkListContent;
-                        descriptionNode.PrependChild(linkListFragment);
+                        XElement linkListElement = XElement.Parse(linkListContent);
+                        descriptionNode.AddFirst(linkListElement);
                     }
 
                     // Create and append the new image element
-                    XmlElement newImageItem = xmlDoc.CreateElement(newImageIdString);
-                    newImageItem.InnerXml = $@"
-                <image type='image'>
-                    <allowplayerdrawing>on</allowplayerdrawing>
-                    <layers>
-                        <layer>
-                            <name>{fileName}</name>
-                            <id>0</id>
-                            <parentid>-1</parentid>
-                            <type>image</type>
-                            <bitmap>campaign/images/{fileName}</bitmap>
-                        </layer>
-                    </layers>
-                </image>
-                <locked type='number'>1</locked>
-                <name type='string'>{imageName}</name>";
-                    xmlDoc.SelectSingleNode("/root/image")?.AppendChild(newImageItem);
+                    XElement newImageItem = XElement.Parse($@"
+                    <{newImageIdString}>
+                        <image type='image'>
+                            <allowplayerdrawing>on</allowplayerdrawing>
+                            <layers>
+                                <layer>
+                                    <name>{fileName}</name>
+                                    <id>0</id>
+                                    <parentid>-1</parentid>
+                                    <type>image</type>
+                                    <bitmap>campaign/images/{fileName}</bitmap>
+                                </layer>
+                            </layers>
+                        </image>
+                        <locked type='number'>1</locked>
+                        <name type='string'>{imageName}</name>
+                    </{newImageIdString}>");
+
+                    var imageRoot = xmlDoc.Root.Element("image");
+                    if (imageRoot != null)
+                    {
+                        imageRoot.Add(newImageItem);
+                    }
+
+                    xmlDoc.Root.Element("item")?.Add(newItem);
+                    xmlDoc.Save(selectedFilePath);
                 }
-
-                newItem.AppendChild(fragment);
-                xmlDoc.SelectSingleNode("/root/item")?.AppendChild(newItem);
-                xmlDoc.Save(selectedFilePath);
-
+                
                 MessageBox.Show("XML content and image injected successfully with ID " + newIdString);
             }
             catch (XmlException ex)
@@ -226,15 +224,12 @@ namespace FGU_Manager
             }
 
             string xmlContentToInject = npcPasteBox.Text;
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(selectedFilePath);
-
-
+            XDocument xmlDoc = XDocument.Load(selectedFilePath);
 
             try
             {
-                int maxId = FindMaxId(xmlDoc, "/root/npc");
-                int maxImageId = FindMaxId(xmlDoc, "/root/image");
+                int maxId = FindMaxId(xmlDoc, "npc");
+                int maxImageId = FindMaxId(xmlDoc, "image");
                 if (maxId == -1 || maxImageId == -1)
                 {
                     MessageBox.Show("Error: Could not find the <npc> or <image> node in the XML file.");
@@ -244,25 +239,10 @@ namespace FGU_Manager
                 int newId = maxId + 1;
                 string newIdString = "id-" + newId.ToString("D5");
 
-                // Create the new NPC element with a unique ID
-                XmlElement newNpc = xmlDoc.CreateElement(newIdString);
+                XElement newNpc = new XElement(newIdString);
+                XElement npcFragment = XElement.Parse(xmlContentToInject);
+                newNpc.Add(npcFragment);
 
-                // Create and append the <locked> element
-                XmlElement lockedElement = xmlDoc.CreateElement("locked");
-                lockedElement.SetAttribute("type", "number");
-                lockedElement.InnerText = "1";
-                newNpc.AppendChild(lockedElement);
-
-                // Create and append the <token> element
-                if (!string.IsNullOrEmpty(npcselectedTokenPath))
-                {
-                    XmlElement tokenElement = xmlDoc.CreateElement("token");
-                    tokenElement.SetAttribute("type", "token");
-                    tokenElement.InnerText = "tokens/" + System.IO.Path.GetFileName(npcselectedTokenPath);
-                    newNpc.AppendChild(tokenElement);
-                }
-
-                // Injecting the <linklist> if an image is selected
                 if (!string.IsNullOrEmpty(npcselectedImagePath))
                 {
                     string fileName = System.IO.Path.GetFileName(npcselectedImagePath);
@@ -270,65 +250,51 @@ namespace FGU_Manager
                     int newImageId = maxImageId + 1;
                     string newImageIdString = "id-" + newImageId.ToString("D5");
 
-                    // Create the dynamic <linklist> content
                     string linkListContent = $@"
                         <linklist>
                             <link class='imagewindow' recordname='image.{newImageIdString}'>Image: {imageName}</link>
                         </linklist>";
 
-                    XmlDocumentFragment fragment = xmlDoc.CreateDocumentFragment();
-                    fragment.InnerXml = xmlContentToInject;
-
-                    // Find or create the <text> node
-                    XmlNode textNode = fragment.SelectSingleNode(".//text");
+                    XElement textNode = npcFragment.Element("text");
                     if (textNode == null)
                     {
-                        // Create the <text> node if it doesn't exist
-                        textNode = xmlDoc.CreateElement("text");
-                        textNode.Attributes.Append(xmlDoc.CreateAttribute("type")).Value = "formattedtext";
-                        //fragment.FirstChild.AppendChild(textNode);
-                        fragment.AppendChild(textNode);
+                        textNode = new XElement("text", new XAttribute("type", "formattedtext"));
+                        npcFragment.Add(textNode);
                     }
 
-                    // Append the <linklist> to the <text> node
-                    XmlDocumentFragment linkListFragment = xmlDoc.CreateDocumentFragment();
-                    linkListFragment.InnerXml = linkListContent;
-                    textNode.PrependChild(linkListFragment);
+                    textNode.AddFirst(XElement.Parse(linkListContent));
 
-                    newNpc.AppendChild(fragment);
+                    XElement newImageItem = new XElement(newImageIdString,
+                        new XElement("image", new XAttribute("type", "image"),
+                            new XElement("allowplayerdrawing", "on"),
+                            new XElement("layers",
+                                new XElement("layer",
+                                    new XElement("name", fileName),
+                                    new XElement("id", "0"),
+                                    new XElement("parentid", "-1"),
+                                    new XElement("type", "image"),
+                                    new XElement("bitmap", $"campaign/images/{fileName}")
+                                )
+                            )
+                        ),
+                        new XElement("locked", new XAttribute("type", "number"), "1"),
+                        new XElement("name", new XAttribute("type", "string"), imageName)
+                    );
 
-                    // Create and append the new image element
-                    XmlElement newImageItem = xmlDoc.CreateElement(newImageIdString);
-                    newImageItem.InnerXml = $@"
-                        <image type='image'>
-                            <allowplayerdrawing>on</allowplayerdrawing>
-                            <layers>
-                                <layer>
-                                    <name>{fileName}</name>
-                                    <id>0</id>
-                                    <parentid>-1</parentid>
-                                    <type>image</type>
-                                    <bitmap>campaign/images/{fileName}</bitmap>
-                                </layer>
-                            </layers>
-                        </image>
-                        <locked type='number'>1</locked>
-                        <name type='string'>{imageName}</name>";
-                    xmlDoc.SelectSingleNode("/root/image")?.AppendChild(newImageItem);
+                    xmlDoc.Root.Element("image")?.Add(newImageItem);
                 }
-                else
+
+                if (!string.IsNullOrEmpty(npcselectedTokenPath))
                 {
-                    // Create a fragment for the NPC XML content
-                    XmlDocumentFragment npcFragment = xmlDoc.CreateDocumentFragment();
-                    npcFragment.InnerXml = xmlContentToInject;
-                    newNpc.AppendChild(npcFragment);
+                    XElement tokenElement = new XElement("token", new XAttribute("type", "token"),
+                        "tokens/" + System.IO.Path.GetFileName(npcselectedTokenPath));
+                    newNpc.Add(tokenElement);
                 }
 
-                // Append the new NPC element to the root NPC node
-                xmlDoc.SelectSingleNode("/root/npc")?.AppendChild(newNpc);
+                xmlDoc.Root.Element("npc")?.Add(newNpc);
                 xmlDoc.Save(selectedFilePath);
 
-                MessageBox.Show("XML content and image injected successfully with ID " + newIdString);
+                MessageBox.Show("NPC content and image injected successfully with ID " + newIdString);
             }
             catch (XmlException ex)
             {
@@ -343,23 +309,13 @@ namespace FGU_Manager
         //////////////////////////
         // Find Max ID Function
         /////////////////////////
-        private int FindMaxId(XmlDocument xmlDoc, string xpath)
+        private int FindMaxId(XDocument xmlDoc, string elementName)
         {
-            XmlNode parentNode = xmlDoc.SelectSingleNode(xpath);
-            int maxId = 0;
-            if (parentNode != null)
-            {
-                foreach (XmlNode childNode in parentNode.ChildNodes)
-                {
-                    if (childNode.Name.StartsWith("id-"))
-                    {
-                        int currentId = int.Parse(childNode.Name.Substring(3));
-                        maxId = Math.Max(maxId, currentId);
-                    }
-                }
-                return maxId;
-            }
-            return -1;
+            var maxId = xmlDoc.Descendants(elementName)
+                              .Select(e => e.Name.LocalName.StartsWith("id-") ? int.Parse(e.Name.LocalName.Substring(3)) : 0)
+                              .DefaultIfEmpty(0)
+                              .Max();
+            return maxId;
         }
 
         private void LoadData()
@@ -400,6 +356,7 @@ namespace FGU_Manager
             }
         }
 
+        // For loading items from the party sheet
         private List<MagicItem> LoadPartyMagicItems(XElement parentElement)
         {
             List<MagicItem> magicItems = new List<MagicItem>();
@@ -425,6 +382,7 @@ namespace FGU_Manager
             return magicItems;
         }
 
+        // For loading items held by specific characters
         private List<MagicItem> LoadMagicItems(XElement parentElement)
         {
             List<MagicItem> magicItems = new List<MagicItem>();
@@ -450,21 +408,22 @@ namespace FGU_Manager
             return magicItems;
         }
 
-        private void DisplayData()
+        private void DisplayData(DataGrid dataGrid, string rarity)
         {
-            // Flatten the list of magic items from all players
-            var allMagicItems = Players.SelectMany(player =>
-                player.MagicItems.Select(item =>
-                    new MagicItem
-                    {
-                        CharacterName = player.Name,
-                        Name = item.Name,
-                        Rarity = item.Rarity,
-                        IsAttuned = item.IsAttuned
-                    })).ToList();
+            // Flatten the list of magic items from all players and filter by rarity
+            var filteredMagicItems = Players.SelectMany(player =>
+                player.MagicItems.Where(item => item.Rarity.Equals(rarity, StringComparison.OrdinalIgnoreCase))
+                    .Select(item =>
+                        new MagicItem
+                        {
+                            CharacterName = player.Name,
+                            Name = item.Name,
+                            Rarity = item.Rarity,
+                            IsAttuned = item.IsAttuned
+                        })).ToList();
 
-            // Set the DataGrid's ItemsSource to the flattened list
-            MagicItemsDataGrid.ItemsSource = allMagicItems;
+            // Set the ItemsSource of the passed DataGrid
+            dataGrid.ItemsSource = filteredMagicItems;
         }
 
     }
