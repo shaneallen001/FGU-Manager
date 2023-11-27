@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FGU_Manager"
         mc:Ignorable="d"
-        Title="FGU Manager" Height="450" Width="800">
+        Title="FGU Manager" Height="450" Width="1540">
 
     <!-- Window Resources for styles -->
     <Window.Resources>
@@ -142,7 +142,7 @@
             <TabItem x:Name="TabInventory" Header="Inventory">
                 <Grid>
 
-                    <DataGrid x:Name="CommonItemsDataGrid" AutoGenerateColumns="False" Margin="0,0,0,170">
+                    <DataGrid x:Name="CommonItemsDataGrid" AutoGenerateColumns="False" Margin="0,0,0,170" Width="300" HorizontalAlignment="Left">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
                             <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
@@ -150,13 +150,43 @@
                         </DataGrid.Columns>
                     </DataGrid>
 
-                    <DataGrid x:Name="RareItemsDataGrid" AutoGenerateColumns="False" Margin="0,171,0,0">
+                    <DataGrid x:Name="UncommonItemsDataGrid" AutoGenerateColumns="False" Margin="305,0,0,170" Width="300" HorizontalAlignment="Left">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
                             <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
                             <DataGridTextColumn Header="Attuned" Binding="{Binding IsAttuned}" />
                         </DataGrid.Columns>
                     </DataGrid>
+
+                    <DataGrid x:Name="RareItemsDataGrid" AutoGenerateColumns="False" Margin="610,0,0,170" Width="300" HorizontalAlignment="Left">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                            <DataGridTextColumn Header="Attuned" Binding="{Binding IsAttuned}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid x:Name="VeryRareItemsDataGrid" AutoGenerateColumns="False" Margin="915,0,0,170" Width="300" HorizontalAlignment="Left">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                            <DataGridTextColumn Header="Attuned" Binding="{Binding IsAttuned}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <DataGrid x:Name="LegendaryItemsDataGrid" AutoGenerateColumns="False" Margin="1220,0,0,170" Width="300" HorizontalAlignment="Left">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+                            <DataGridTextColumn Header="Attuned" Binding="{Binding IsAttuned}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBox Name="CommonItemsText" HorizontalAlignment="Left" Margin="0,171,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Height="100"/>
+                    <TextBox Name="UncommonItemsText" HorizontalAlignment="Left" Margin="305,171,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Height="100"/>
+                    <TextBox Name="RareItemsText" HorizontalAlignment="Center" Margin="0,171,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Height="100"/>
+                    <TextBox Name="VeryRareItemsText" HorizontalAlignment="Left" Margin="917,171,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Height="100"/>
+                    <TextBox Name="LegendaryItemsText" HorizontalAlignment="Left" Margin="1220,171,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Height="100"/>
                     <!-- Additional Controls Here -->
                 </Grid>
 

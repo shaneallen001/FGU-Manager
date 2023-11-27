@@ -45,8 +45,11 @@ namespace FGU_Manager
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
             LoadData();
-            DisplayData(CommonItemsDataGrid, "Common");
-            DisplayData(RareItemsDataGrid, "Rare");
+            DisplayData(CommonItemsDataGrid, "Common", CommonItemsText);
+            DisplayData(UncommonItemsDataGrid, "Uncommon", UncommonItemsText);
+            DisplayData(RareItemsDataGrid, "Rare", RareItemsText);
+            DisplayData(VeryRareItemsDataGrid, "Very Rare", VeryRareItemsText);
+            DisplayData(LegendaryItemsDataGrid, "Legendary", LegendaryItemsText);
         }
 
         //////////////////////////
@@ -408,9 +411,8 @@ namespace FGU_Manager
             return magicItems;
         }
 
-        private void DisplayData(DataGrid dataGrid, string rarity)
+        private void DisplayData(DataGrid dataGrid, string rarity, TextBox itemCountDisplay)
         {
-            // Flatten the list of magic items from all players and filter by rarity
             var filteredMagicItems = Players.SelectMany(player =>
                 player.MagicItems.Where(item => item.Rarity.Equals(rarity, StringComparison.OrdinalIgnoreCase))
                     .Select(item =>
@@ -422,8 +424,8 @@ namespace FGU_Manager
                             IsAttuned = item.IsAttuned
                         })).ToList();
 
-            // Set the ItemsSource of the passed DataGrid
             dataGrid.ItemsSource = filteredMagicItems;
+            itemCountDisplay.Text = $"Items Count: {filteredMagicItems.Count}";
         }
 
     }
