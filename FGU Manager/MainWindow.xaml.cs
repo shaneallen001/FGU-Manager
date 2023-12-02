@@ -30,6 +30,7 @@ namespace FGU_Manager
         private string npcselectedImagePath;
         private string npcselectedTokenPath;
         public List<Player> Players { get; set; }
+        private HashSet<string> majorItemTypes = new HashSet<string> { "Weapon", "Armor", "Shield", "Ring", "Cloak", "Rod", "Wondrous Item" };
 
         //////////////////////////
         // Main Window
@@ -37,19 +38,6 @@ namespace FGU_Manager
         public MainWindow()
         {
             InitializeComponent();
-        }
-
-        //////////////////////////
-        // TEST Button
-        /////////////////////////
-        private void TestButton_Click(object sender, RoutedEventArgs e)
-        {
-            LoadData();
-            DisplayData(CommonItemsDataGrid, "Common", CommonItemsText);
-            DisplayData(UncommonItemsDataGrid, "Uncommon", UncommonItemsText);
-            DisplayData(RareItemsDataGrid, "Rare", RareItemsText);
-            DisplayData(VeryRareItemsDataGrid, "Very Rare", VeryRareItemsText);
-            DisplayData(LegendaryItemsDataGrid, "Legendary", LegendaryItemsText);
         }
 
         //////////////////////////
@@ -64,6 +52,18 @@ namespace FGU_Manager
                 selectedFilePath = openFileDialog.FileName;
                 txtSelectedFilePath.Content = openFileDialog.FileName;
             }
+
+            LoadData();
+            DisplayData(CommonItemsDataGrid, "Common", CommonItemsText, false);
+            DisplayData(UncommonItemsDataGrid, "Uncommon", UncommonItemsText, false);
+            DisplayData(RareItemsDataGrid, "Rare", RareItemsText, false);
+            DisplayData(VeryRareItemsDataGrid, "Very Rare", VeryRareItemsText, false);
+            DisplayData(LegendaryItemsDataGrid, "Legendary", LegendaryItemsText, false);
+
+            DisplayData(UncommonMajorItemsDataGrid, "Uncommon", UncommonMajorItemsText, true);
+            DisplayData(RareMajorItemsDataGrid, "Rare", RareMajorItemsText, true);
+            DisplayData(VeryRareMajorItemsDataGrid, "Very Rare", VeryRareMajorItemsText, true);
+            DisplayData(LegendaryMajorItemsDataGrid, "Legendary", LegendaryMajorItemsText, true);
         }
 
         //////////////////////////
@@ -368,14 +368,14 @@ namespace FGU_Manager
             foreach (var item in inventoryItems)
             {
                 var propertiesElement = item.Element("properties");
-                if (propertiesElement != null && propertiesElement.Value.Contains("Magic"))
+                if (propertiesElement != null && propertiesElement.Value.IndexOf("Magic", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     MagicItem magicItem = new MagicItem
                     {
                         CharacterName = parentElement.Element("name")?.Value,
                         Name = item.Element("name")?.Value,
                         Rarity = item.Element("rarity")?.Value,
-                        IsAttuned = item.Element("attune")?.Value == "1"
+                        //IsAttuned = item.Element("attune")?.Value == "1" ? 1 : 0
                         // Other properties as needed
                     };
                     magicItems.Add(magicItem);
@@ -394,14 +394,15 @@ namespace FGU_Manager
             foreach (var item in inventoryItems)
             {
                 var propertiesElement = item.Element("properties");
-                if (propertiesElement != null && propertiesElement.Value.Contains("Magic"))
+                if (propertiesElement != null && propertiesElement.Value.IndexOf("Magic", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     MagicItem magicItem = new MagicItem
                     {
                         CharacterName = parentElement.Element("name")?.Value,
                         Name = item.Element("name")?.Value,
                         Rarity = item.Element("rarity")?.Value,
-                        IsAttuned = item.Element("attune")?.Value == "1"
+                        Type = item.Element("type")?.Value,
+                        //IsAttuned = item.Element("attune")?.Value == "1" ? 1 : 0
                         // Other properties as needed
                     };
                     magicItems.Add(magicItem);
@@ -411,21 +412,25 @@ namespace FGU_Manager
             return magicItems;
         }
 
-        private void DisplayData(DataGrid dataGrid, string rarity, TextBox itemCountDisplay)
+        private void DisplayData(DataGrid dataGrid, string rarity, TextBox itemCountDisplay, bool showMajorItems)
         {
-            var filteredMagicItems = Players.SelectMany(player =>
-                player.MagicItems.Where(item => item.Rarity.Equals(rarity, StringComparison.OrdinalIgnoreCase))
+            var filteredItems = Players.SelectMany(player =>
+                player.MagicItems.Where(item =>
+                    item.Rarity.IndexOf(rarity, StringComparison.OrdinalIgnoreCase) >= 0 &&
+                    (showMajorItems == majorItemTypes.Contains(item.Type)))
                     .Select(item =>
                         new MagicItem
                         {
                             CharacterName = player.Name,
                             Name = item.Name,
                             Rarity = item.Rarity,
-                            IsAttuned = item.IsAttuned
+                            Type = item.Type,
+                            //IsAttuned = item.IsAttuned
+                            // Other properties as needed
                         })).ToList();
 
-            dataGrid.ItemsSource = filteredMagicItems;
-            itemCountDisplay.Text = $"Items Count: {filteredMagicItems.Count}";
+            dataGrid.ItemsSource = filteredItems;
+            itemCountDisplay.Text = $"{filteredItems.Count}";
         }
 
     }

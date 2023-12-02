@@ -5,10 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FGU_Manager"
         mc:Ignorable="d"
-        Title="FGU Manager" Height="450" Width="1540">
+        Title="FGU Manager" Height="850" Width="1540">
 
-    <!-- Window Resources for styles -->
+    <!-- Window Resources -->
     <Window.Resources>
+        
+        <local:StringTruncatorConverter x:Key="StringTruncatorConverter"/>
+        <local:AttunementConverter x:Key="AttunementConverter"/>
+
         <!-- Button Style -->
         <Style x:Key="AccentButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#FF007ACC"/>
@@ -60,9 +64,9 @@
                HorizontalAlignment="Left" VerticalAlignment="Center"
 			   Margin="85,0,0,0" Height="40" Width="500" Background="Gray"/>
 
-            <Button Name="TestButton" Click="TestButton_Click" Content="TEST"
+            <Button Name="InventoryLoad" Content="Inv Load"
                 HorizontalAlignment="Right" VerticalAlignment="Center"
-				Margin="5,5,5,5" Height="40" Width="75" Style="{StaticResource AccentButtonStyle}"/>
+				Margin="5,5,5,5" Height="40" Width="90" Style="{StaticResource AccentButtonStyle}"/>
         </Grid>
 
         <!-- Tab Control -->
@@ -88,10 +92,10 @@
                     <Button Name="InjectButton" Click="InjectButton_Click" Content="Inject" 
                     Grid.Row="1" 
 					HorizontalAlignment="Left" VerticalAlignment="Top"
-                    Margin="5,35,601,20" Padding="10" Width="70" Height="40"  
+                    Margin="5,50,0,0" Padding="10" Width="70" Height="40"  
                     Style="{StaticResource AccentButtonStyle}"/>
 
-                    <Border Background="Gray" Width="200" Height="200" Margin="0,0,574,20">
+                    <Border Background="Gray" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="200" Margin="0,0,0,0">
                         <Image x:Name="DisplayImage" Stretch="Fill"/>
                     </Border>
                 </Grid>
@@ -112,8 +116,8 @@
 
                     <Button Name="npcSelectTokenButton" Click="NpcSelectTokenButton_Click" Content="Token"
                     Grid.RowSpan="2"
-					HorizontalAlignment="Left" VerticalAlignment="Top"
-                    Margin="680,120,0,0" Padding="10" Width="70" Height="40"
+					HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="0,105,20,0" Padding="10" Width="70" Height="40"
 					Style="{StaticResource AccentButtonStyle}"/>
 
                     <TextBox Name="npcPasteBox" AcceptsReturn="True" AcceptsTab="True" VerticalScrollBarVisibility="Auto"
@@ -126,11 +130,11 @@
                         Margin="5,35,601,20" Padding="10" Width="70" Height="40"  
                         Style="{StaticResource AccentButtonStyle}"/>
 
-                    <Border Background="Gray" Width="200" Height="200" Margin="0,0,574,20">
+                    <Border Background="Gray" HorizontalAlignment="Left" VerticalAlignment="Top" Width="200" Height="200" Margin="0,0,574,20">
                         <Image x:Name="npcDisplayImage" Stretch="Fill"/>
                     </Border>
 
-                    <Border Background="Gray" Width="100" Height="100" Margin="654,-100,0,0">
+                    <Border Background="Gray" HorizontalAlignment="Right" VerticalAlignment="Top" Width="100" Height="100" Margin="0,0,5,0">
                         <Image x:Name="npcDisplayToken" Stretch="Fill"/>
                     </Border>
 
@@ -139,55 +143,179 @@
             </TabItem>
 
             <!-- Inventory Tab -->
-            <TabItem x:Name="TabInventory" Header="Inventory">
+            <TabItem x:Name="TabInventory" Header="Inventory" HorizontalAlignment="Right" Width="62">
                 <Grid>
 
-                    <DataGrid x:Name="CommonItemsDataGrid" AutoGenerateColumns="False" Margin="0,0,0,170" Width="300" HorizontalAlignment="Left">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                            <DataGridTextColumn Header="Attuned" Binding="{Binding IsAttuned}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <!-- Define rows for the grid -->
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/> <!-- Row for all Minor Textboxes -->
+                        <RowDefinition Height="Auto"/> <!-- Row for all Minor DataGrids -->
+                        <RowDefinition Height="Auto"/> <!-- Row for all Major Textboxes -->
+                        <RowDefinition Height="Auto"/> <!-- Row for all Major DataGrids -->
+                    </Grid.RowDefinitions>
 
-                    <DataGrid x:Name="UncommonItemsDataGrid" AutoGenerateColumns="False" Margin="305,0,0,170" Width="300" HorizontalAlignment="Left">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                            <DataGridTextColumn Header="Attuned" Binding="{Binding IsAttuned}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <!-- Row 0: All Minor Textboxes -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBox Name="CommonItemsText" TextWrapping="Wrap" Text="Common Items" Width="300" Height="100" Margin="5,0,0,0"/>
+                        <TextBox Name="UncommonItemsText" TextWrapping="Wrap" Text="Uncommon Items" Width="300" Height="100" Margin="5,0,0,0"/>
+                        <TextBox Name="RareItemsText" TextWrapping="Wrap" Text="Rare Items" Width="300" Height="100" Margin="5,0,0,0"/>
+                        <TextBox Name="VeryRareItemsText" TextWrapping="Wrap" Text="Very Rare Items" Width="300" Height="100" Margin="5,0,0,0"/>
+                        <TextBox Name="LegendaryItemsText" TextWrapping="Wrap" Text="Legendary Items" Width="300" Height="100" Margin="5,0,0,0"/>
+                    </StackPanel>
 
-                    <DataGrid x:Name="RareItemsDataGrid" AutoGenerateColumns="False" Margin="610,0,0,170" Width="300" HorizontalAlignment="Left">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                            <DataGridTextColumn Header="Attuned" Binding="{Binding IsAttuned}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <!-- Row 1: All Minor DataGrids -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
+                        
+                        <!-- Common Minor -->
+                        <DataGrid x:Name="CommonItemsDataGrid" AutoGenerateColumns="False" HeadersVisibility="None" Margin="0,0,0,0" Height ="200" Width="300" VerticalAlignment="Top" HorizontalAlignment="Left" MaxColumnWidth="250" MinColumnWidth="255">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn>
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0} - {1}{2}">
+                                            <Binding Path="CharacterName" Converter="{StaticResource StringTruncatorConverter}" ConverterParameter="4"/>
+                                            <Binding Path="Name" />
+                                            <Binding Path="IsAttuned" Converter="{StaticResource AttunementConverter}" />
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        
+                        <!-- Uncommon Minor -->
+                        <DataGrid x:Name="UncommonItemsDataGrid" AutoGenerateColumns="False" HeadersVisibility="None" Margin="5,0,0,0" Height ="200" Width="300" VerticalAlignment="Top" HorizontalAlignment="Left" MaxColumnWidth="250" MinColumnWidth="250">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn>
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0} - {1}{2}">
+                                            <Binding Path="CharacterName" Converter="{StaticResource StringTruncatorConverter}" ConverterParameter="4"/>
+                                            <Binding Path="Name" />
+                                            <Binding Path="IsAttuned" Converter="{StaticResource AttunementConverter}" />
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
 
-                    <DataGrid x:Name="VeryRareItemsDataGrid" AutoGenerateColumns="False" Margin="915,0,0,170" Width="300" HorizontalAlignment="Left">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                            <DataGridTextColumn Header="Attuned" Binding="{Binding IsAttuned}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        <!-- Rare Minor -->
+                        <DataGrid x:Name="RareItemsDataGrid" AutoGenerateColumns="False" HeadersVisibility="None" Margin="5,0,0,0" Height ="200" Width="300" VerticalAlignment="Top" HorizontalAlignment="Left" MaxColumnWidth="250" MinColumnWidth="250">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn>
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0} - {1}{2}">
+                                            <Binding Path="CharacterName" Converter="{StaticResource StringTruncatorConverter}" ConverterParameter="4"/>
+                                            <Binding Path="Name" />
+                                            <Binding Path="IsAttuned" Converter="{StaticResource AttunementConverter}" />
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
 
-                    <DataGrid x:Name="LegendaryItemsDataGrid" AutoGenerateColumns="False" Margin="1220,0,0,170" Width="300" HorizontalAlignment="Left">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Character Name" Binding="{Binding CharacterName}" />
-                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-                            <DataGridTextColumn Header="Attuned" Binding="{Binding IsAttuned}" />
-                        </DataGrid.Columns>
-                    </DataGrid>
+                        <!-- Very Rare Minor -->
+                        <DataGrid x:Name="VeryRareItemsDataGrid" AutoGenerateColumns="False" HeadersVisibility="None" Margin="5,0,0,0" Height ="200" Width="300" VerticalAlignment="Top" HorizontalAlignment="Left" MaxColumnWidth="250" MinColumnWidth="250">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn>
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0} - {1}{2}">
+                                            <Binding Path="CharacterName" Converter="{StaticResource StringTruncatorConverter}" ConverterParameter="4"/>
+                                            <Binding Path="Name" />
+                                            <Binding Path="IsAttuned" Converter="{StaticResource AttunementConverter}" />
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
 
-                    <TextBox Name="CommonItemsText" HorizontalAlignment="Left" Margin="0,171,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Height="100"/>
-                    <TextBox Name="UncommonItemsText" HorizontalAlignment="Left" Margin="305,171,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Height="100"/>
-                    <TextBox Name="RareItemsText" HorizontalAlignment="Center" Margin="0,171,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Height="100"/>
-                    <TextBox Name="VeryRareItemsText" HorizontalAlignment="Left" Margin="917,171,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Height="100"/>
-                    <TextBox Name="LegendaryItemsText" HorizontalAlignment="Left" Margin="1220,171,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="300" Height="100"/>
-                    <!-- Additional Controls Here -->
+                        <!-- Legendary Minor -->
+                        <DataGrid x:Name="LegendaryItemsDataGrid" AutoGenerateColumns="False" HeadersVisibility="None" Margin="5,0,0,0" Height ="200" Width="300" VerticalAlignment="Top" HorizontalAlignment="Left" MaxColumnWidth="250" MinColumnWidth="250">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn>
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0} - {1}{2}">
+                                            <Binding Path="CharacterName" Converter="{StaticResource StringTruncatorConverter}" ConverterParameter="4"/>
+                                            <Binding Path="Name" />
+                                            <Binding Path="IsAttuned" Converter="{StaticResource AttunementConverter}" />
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                    </StackPanel>
+
+                    <!-- Row 2: All Major Textboxes -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="5">
+                        <TextBox Name="UncommonMajorItemsText" TextWrapping="Wrap" Text="Uncommon Major Items" Width="300" Height="100" Margin="305,0,0,0"/>
+                        <TextBox Name="RareMajorItemsText" TextWrapping="Wrap" Text="Rare Major Items" Width="300" Height="100" Margin="5,0,0,0"/>
+                        <TextBox Name="VeryRareMajorItemsText" TextWrapping="Wrap" Text="Very Rare Major Items" Width="300" Height="100" Margin="5,0,0,0"/>
+                        <TextBox Name="LegendaryMajorItemsText" TextWrapping="Wrap" Text="Legendary Major Items" Width="300" Height="100" Margin="5,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Row 3: All Major DataGrids -->
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="5">
+
+                        <!-- Uncommon Major -->
+                        <DataGrid x:Name="UncommonMajorItemsDataGrid" AutoGenerateColumns="False" HeadersVisibility="None" Margin="305,0,0,0" Height ="200" Width="300" VerticalAlignment="Top" HorizontalAlignment="Left" MaxColumnWidth="250" MinColumnWidth="255">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn>
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0} - {1}{2}">
+                                            <Binding Path="CharacterName" Converter="{StaticResource StringTruncatorConverter}" ConverterParameter="4"/>
+                                            <Binding Path="Name" />
+                                            <Binding Path="IsAttuned" Converter="{StaticResource AttunementConverter}" />
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Rare Major -->
+                        <DataGrid x:Name="RareMajorItemsDataGrid" AutoGenerateColumns="False" HeadersVisibility="None" Margin="5,0,0,0" Height ="200" Width="300" VerticalAlignment="Top" HorizontalAlignment="Left" MaxColumnWidth="250" MinColumnWidth="255">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn>
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0} - {1}{2}">
+                                            <Binding Path="CharacterName" Converter="{StaticResource StringTruncatorConverter}" ConverterParameter="4"/>
+                                            <Binding Path="Name" />
+                                            <Binding Path="IsAttuned" Converter="{StaticResource AttunementConverter}" />
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Very Rare Major -->
+                        <DataGrid x:Name="VeryRareMajorItemsDataGrid" AutoGenerateColumns="False" HeadersVisibility="None" Margin="5,0,0,0" Height ="200" Width="300" VerticalAlignment="Top" HorizontalAlignment="Left" MaxColumnWidth="250" MinColumnWidth="255">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn>
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0} - {1}{2}">
+                                            <Binding Path="CharacterName" Converter="{StaticResource StringTruncatorConverter}" ConverterParameter="4"/>
+                                            <Binding Path="Name" />
+                                            <Binding Path="IsAttuned" Converter="{StaticResource AttunementConverter}" />
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                        <!-- Legendary Major -->
+                        <DataGrid x:Name="LegendaryMajorItemsDataGrid" AutoGenerateColumns="False" HeadersVisibility="None" Margin="5,0,0,0" Height ="200" Width="300" VerticalAlignment="Top" HorizontalAlignment="Left" MaxColumnWidth="250" MinColumnWidth="255">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn>
+                                    <DataGridTextColumn.Binding>
+                                        <MultiBinding StringFormat="{}{0} - {1}{2}">
+                                            <Binding Path="CharacterName" Converter="{StaticResource StringTruncatorConverter}" ConverterParameter="4"/>
+                                            <Binding Path="Name" />
+                                            <Binding Path="IsAttuned" Converter="{StaticResource AttunementConverter}" />
+                                        </MultiBinding>
+                                    </DataGridTextColumn.Binding>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                    </StackPanel>
+
                 </Grid>
 
             </TabItem>
